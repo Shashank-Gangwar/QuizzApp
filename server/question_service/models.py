@@ -1,6 +1,7 @@
 from database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String
 
+
 class Question_tag(Base):
     __tablename__ = "question_tag"
 

@@ -10,5 +10,10 @@ venv/
 .venv/
 ENV/
 
+
+# Ignoring alembic folder and files
+alembic/
+alembic.ini
+
 # Ignoring environment configuration files
 .env
