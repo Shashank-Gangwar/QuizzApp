@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from time import timezone
 from typing import Annotated
 from starlette import status
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from database import SessionLocal
@@ -53,19 +53,22 @@ def create_access_token(username: str, user_id: int, role: str, expires_delta: t
     return jwt.encode(encode, SECRET_KEY, algorithm = ALGORITHM)
 
 # Verifying user authenticity and giving current user if valid token
-async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]) :
+async def get_current_user(token: Annotated[str,Depends(oauth2_bearer)]):
+    print(token)
     try:
+        
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
         user_id:int = payload.get('id')
         user_role: str = payload.get('role')
+        print(username)
         if username is None or user_id is None or user_role is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="could not validate user.")
 
         return {'username':username, 'id':user_id, 'user_role':user_role}
     
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="could not validate user.")
+    except JWTError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=str(e))
 
 
 
@@ -110,7 +113,7 @@ async def register_user(register_user_request: RegisterUserRequest,db:db_depende
 
 # Login user for access_token
 @router.post("/login", status_code=status.HTTP_200_OK)
-async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:db_dependency):
+async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:db_dependency,response:Response):
     # Check login credentials
     user = db.query(Users).filter(Users.username == form_data.username).first()
     if not user:
@@ -129,8 +132,9 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 
 
     # Generating access token
-    token = create_access_token(user.username, user.id, role, timedelta(minutes=20))
-    
+    token = create_access_token(user.username, user.id, role, timedelta(minutes=60))
 
-    return {'access_token':token}
+    response.set_cookie(key='access_token',value=token,max_age=18000)
+
+    return {"access_token":token, "token_type":"bearer"}
 

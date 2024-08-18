@@ -1,5 +1,5 @@
-from fastapi import  APIRouter,Depends, HTTPException, Path
-from typing import Annotated
+from fastapi import  APIRouter, Body,Depends, HTTPException, Path
+from typing import Annotated, List
 from psycopg2 import IntegrityError
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -64,45 +64,67 @@ async def read_particular_question(db:db_dependency , question_id:int = Path(gt=
 
 
 
+# Getting questions of listed IDs
+@router.post("/questions/by-ids")
+async def get_questions_by_ids(db:db_dependency,question_ids: list[int] = Body(...)):
+    questions = db.query(Question).filter(Question.id.in_(question_ids)).all()
+    
 
-# creating new Question with its Tags
+    questions_list = [ {
+        'question_id': question.id,
+    'text': question.text,
+    'option1': question.option1,
+    'option2': question.option2,
+    'option3': question.option3,
+    'option4': question.option4,
+    'correct_answer': question.correct_answer
+} for question in questions]
+    
+    return questions_list
 
+
+
+
+# creating new multiple Questions with its Tags
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_question(db:db_dependency,question_request:QuestionRequest):
-    tags = question_request.tags
+async def create_questions(db:db_dependency,questions:List[QuestionRequest]):
     try:
         # Inserting new Question
-        question_data = question_request.dict(exclude={"tags"})
-        question_model = Question(**question_data)
-        db.add(question_model)
-        db.flush()
-        new_question_id =  question_model.id
-        
+        created_questions = []
+        for question_request in questions:
+            tags = question_request.tags
+            question_data = question_request.dict(exclude={"tags"})
+            question_model = Question(**question_data)
+            db.add(question_model)
+            db.flush()
+            new_question_id =  question_model.id
+            
 
-        # Inserting new tags and taking IDs of all
-        new_tag_ids = []
-        for tag in tags:
-            existing_tag = db.query(Tag).filter(Tag.tag_name == tag).first()
-            if existing_tag:
-                new_tag_ids.append(existing_tag.id)
-            else:
-                new_tag = Tag(tag_name=tag)
-                db.add(new_tag)
-                db.flush()  # flush to get the new tag's ID
-                new_tag_ids.append(new_tag.id)
+            # Inserting new tags and taking IDs of all
+            new_tag_ids = []
+            for tag in tags:
+                existing_tag = db.query(Tag).filter(Tag.tag_name == tag).first()
+                if existing_tag:
+                    new_tag_ids.append(existing_tag.id)
+                else:
+                    new_tag = Tag(tag_name=tag)
+                    db.add(new_tag)
+                    db.flush()  # flush to get the new tag's ID
+                    new_tag_ids.append(new_tag.id)
 
 
 
-        # here in question_tag table inserting the question ID and its all tag Ids
-        question_tag_models = []
-        for tag_id in new_tag_ids:
-            question_tag_data = {"question_id": new_question_id, "tag_id": tag_id}
-            question_tag_model = Question_tag(**question_tag_data)
-            question_tag_models.append(question_tag_model)
-        db.add_all(question_tag_models)
+            # here in question_tag table inserting the question ID and its all tag Ids
+            question_tag_models = []
+            for tag_id in new_tag_ids:
+                question_tag_data = {"question_id": new_question_id, "tag_id": tag_id}
+                question_tag_model = Question_tag(**question_tag_data)
+                question_tag_models.append(question_tag_model)
+            db.add_all(question_tag_models)
+            created_questions.append(new_question_id)
         db.commit()  # commiting the entire transaction
-
-        return {"message": "Question created successfully","question_id": new_question_id}
+        print(created_questions)
+        return {"message": "Question created successfully","question_ids": created_questions}
     
     except IntegrityError as e:
         # handle DB integrity errors (which occur when unique constraints, foreign key constraints, or other database-level constraints are violated.)
