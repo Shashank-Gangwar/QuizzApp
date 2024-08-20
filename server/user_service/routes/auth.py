@@ -71,10 +71,25 @@ async def get_current_user(token: Annotated[str,Depends(oauth2_bearer)]):
 
 # Routes--------------------
 
-@router.get("/getall")
-async def read_all_questions(db:db_dependency):
-    return db.query(Users).all()
 
+# Get all users
+@router.get("/getall_users")
+async def all_users(db:db_dependency):
+
+    all_users =  db.query(Users,Role.role_name).join(User_role, User_role.user_id==Users.id).join(Role,Role.id==User_role.role_id).all()
+
+    result = []
+    for user, role_name in all_users:
+        result.append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "password": user.password_hash,
+            "created_at":user.created_at,
+            "role": role_name
+        })
+
+    return result;
 
 
 
@@ -103,7 +118,7 @@ async def register_user(register_user_request: RegisterUserRequest,db:db_depende
     db.add(user_role_model)
     db.commit()
 
-    return user_role_model
+    return {"details":"User created successfully"}
 
 
 
@@ -123,9 +138,8 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     # Getting user role from db
     user_and_role = db.query(User_role, Role).join(Role, User_role.role_id == Role.id).filter(User_role.user_id == user.id).first()
 
-    # Extracting the values
-    user_role = user_and_role[0]  # Contains the User_role object
-    role = user_and_role[1].role_name  # Contains the Role object
+    # Extracting the values 
+    role = user_and_role[1].role_name  
 
 
     # Generating access token

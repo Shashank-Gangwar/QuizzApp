@@ -23,6 +23,7 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
+
 class QuestionRequest(BaseModel):
     text : str = Field(min_length=3)
     option1 : str = Field(min_length=1)
@@ -33,17 +34,19 @@ class QuestionRequest(BaseModel):
     tags : list[str] 
 
 
+# >---------------------- Routes -------------------------<
+
+
+
 
 # Get all the questions
-
 @router.get("/getall")
 async def read_all_questions(db:db_dependency):
     return db.query(Question).all()
 
 
 
-# Getting particular Question with tags from the tables using Question Id
-
+# Get particular Question using Question Id
 @router.get("/{question_id}")
 async def read_particular_question(db:db_dependency , question_id:int = Path(gt=0)):
 
@@ -141,7 +144,6 @@ async def create_questions(db:db_dependency,questions:List[QuestionRequest]):
 
 
 # updating the existing question using Question Id
-
 @router.put("/{question_id}")
 async def update_question(db:db_dependency ,question_request:QuestionRequest,  question_id:int = Path(gt=0)):
     
@@ -208,23 +210,29 @@ async def update_question(db:db_dependency ,question_request:QuestionRequest,  q
 
 
 # Delete the existing question using Question Id
-
 @router.delete("/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def deleting_question(db:db_dependency ,  question_id:int = Path(gt=0)):
-    # checking if the question exits
-    question_model = db.query(Question).filter(Question.id == question_id).first()
-    if not question_model:   
-        raise HTTPException(status_code=404,detail="Question not found!")
-    
+async def delete_questions(db:db_dependency ,  question_ids: List[int] = Body(...)):
     try:
-        # Deleting all the columns of this question in question_tag table 
-        db.query(Question_tag).filter(Question_tag.question_id == question_id).delete()
-        # Then delete the question itself
-        db.query(Question).filter(Question.id == question_id).delete()
+        # Check if all the questions exist
+        questions = db.query(Question).filter(Question.id.in_(question_ids)).all()
+        
+        if len(questions) != len(question_ids):
+            raise HTTPException(status_code=404, detail="One or more questions not found!")
+
+        # deleting all the related rows in question_tag table
+        db.query(Question_tag).filter(Question_tag.question_id.in_(question_ids)).delete(synchronize_session=False)
+
+        # then delete the questions
+        db.query(Question).filter(Question.id.in_(question_ids)).delete(synchronize_session=False)
 
         db.commit()
             
     except Exception as e:
         db.rollback()
-        return {"error": "An error occurred while deleting the question. Transaction rolled back."}
+        return {"message": "An error occurred while deleting the question. Transaction rolled back.","error":e}
 
+    return {"detail": "Questions deleted successfully"}
+
+
+
+    

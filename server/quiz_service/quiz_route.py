@@ -19,7 +19,7 @@ router = APIRouter(
 
 
 # Getting environment variables
-GET_QUESTIONS_BY_IDS_URL = os.environ.get("GET_QUESTIONS_BY_IDS")
+GET_QUESTIONS_BY_IDS_URL = os.environ.get("GET_QUESTIONS_BY_IDS_URL")
 CREATE_QUESTION_URL= os.environ.get("CREATE_QUESTION_URL")
 VALIDATE_USER_URL=os.environ.get("VALIDATE_USER_URL")
 
@@ -225,7 +225,7 @@ async def create_quiz(create_quiz_request
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Access token")
     
     if token_details['role'] != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Invalid request")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Not Authorized")
     
     try:
         # Creating new quiz 
