@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ router = APIRouter(
     tags=['quiz_attempt']
 )
 
+AUTHENTICATE_USER= os.environ.get("AUTHENTICATE_USER")
 
 def get_db():
     db = SessionLocal()
@@ -27,7 +29,7 @@ auth_scheme = HTTPBearer()
 
 
 async def verify_token(token:str):
-    url = "http://127.0.0.1:8002/user/"  
+    url = AUTHENTICATE_USER
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"

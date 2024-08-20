@@ -37,7 +37,7 @@ class update_password_request(BaseModel):
 @router.get("/")
 async def get_user_details(token_user:user_dependency, db:db_dependency):
     user = db.query(Users).filter(Users.id==token_user['id']).first()
-    print("hello")
+    
 
     user_details = {
             "id": user.id,

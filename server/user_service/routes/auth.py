@@ -53,14 +53,12 @@ def create_access_token(username: str, user_id: int, role: str, expires_delta: t
 
 # Verifying user authenticity and giving current user if valid token
 async def get_current_user(token: Annotated[str,Depends(oauth2_bearer)]):
-    print(token)
     try:
         
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
         user_id:int = payload.get('id')
         user_role: str = payload.get('role')
-        print(username)
         if username is None or user_id is None or user_role is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="could not validate user.")
 
