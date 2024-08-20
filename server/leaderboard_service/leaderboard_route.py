@@ -46,7 +46,7 @@ async def verify_token(token:str):
     
 
 
-@router.post('/{quiz_id}')
+@router.get('/{quiz_id}')
 async def quiz_leaderboard(quiz_id: int, db:db_dependency,token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
     token_details = await verify_token(token.credentials)
     if token_details == None :
