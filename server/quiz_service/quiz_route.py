@@ -74,7 +74,7 @@ async def get_questions(question_ids:list):
         response = await client.post(url, headers=headers, json=question_ids)
 
     if response.status_code != 200 :
-        raise HTTPException(status_code=response.status_code, detail="Failed to create questions")
+        raise HTTPException(status_code=response.status_code, detail="Failed to get questions")
     
     return response.json()
 

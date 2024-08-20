@@ -51,6 +51,10 @@ async def start_quiz(quiz_id: int, db:db_dependency,token: HTTPAuthorizationCred
     if token_details == None :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Access token")
     
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found!")
+    
     quiz_attempt = Quiz_Attempts(user_id=token_details['id'], quiz_id=quiz_id)
     db.add(quiz_attempt)
     db.commit()
@@ -68,7 +72,7 @@ async def complete_quiz(quiz_attempt_id: int, score: float, db: db_dependency,to
     
     quiz_attempt = db.query(Quiz_Attempts).filter(Quiz_Attempts.id == quiz_attempt_id).first()
     if quiz_attempt is None:
-        raise HTTPException(status_code=404, detail="Quiz attempt not found")
+        raise HTTPException(status_code=404, detail="You have not attempted the quiz yet")
     
     quiz_attempt.end_time = datetime.now()
     quiz_attempt.score = score
