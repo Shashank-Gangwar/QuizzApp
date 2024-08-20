@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from time import timezone
 from typing import Annotated
 from starlette import status
 from fastapi import APIRouter, Depends, HTTPException, Response
