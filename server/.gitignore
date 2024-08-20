@@ -15,5 +15,9 @@ ENV/
 alembic/
 alembic.ini
 
+#config file
+config.txt
+
+
 # Ignoring environment configuration files
 .env

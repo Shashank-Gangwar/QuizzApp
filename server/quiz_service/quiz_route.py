@@ -1,4 +1,5 @@
 from collections import defaultdict
+import os
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, Field
@@ -16,6 +17,8 @@ router = APIRouter(
     tags=['quiz']
 )
 
+GET_QUESTIONS_BY_IDS_URL = os.environ.get("GET_QUESTIONS_BY_IDS")
+CREATE_QUESTION_URL= os.environ.get("CREATE_QUESTION_URL")
 
 def get_db():
     db = SessionLocal()
@@ -45,7 +48,7 @@ async def verify_token(token:str):
         return None
     
 async def createQuestions(questions:list):
-    url = "http://127.0.0.1:8004/question/" 
+    url = CREATE_QUESTION_URL
     data = [question.dict() for question in questions]  # Convert Pydantic models to dict
 
     headers = {"Content-Type": "application/json"}
@@ -61,7 +64,7 @@ async def createQuestions(questions:list):
 
 async def get_questions(question_ids:list):
     
-    url = "http://127.0.0.1:8004/question/questions/by-ids" 
+    url = GET_QUESTIONS_BY_IDS_URL
     headers = {"Content-Type": "application/json"}
     
     async with AsyncClient() as client:

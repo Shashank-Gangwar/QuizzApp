@@ -65,7 +65,7 @@ async def read_particular_question(db:db_dependency , question_id:int = Path(gt=
 
 
 # Getting questions of listed IDs
-@router.post("/questions/by-ids")
+@router.post("/questions-by-ids")
 async def get_questions_by_ids(db:db_dependency,question_ids: list[int] = Body(...)):
     questions = db.query(Question).filter(Question.id.in_(question_ids)).all()
     
