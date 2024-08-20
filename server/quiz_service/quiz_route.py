@@ -17,8 +17,11 @@ router = APIRouter(
     tags=['quiz']
 )
 
+
+# Getting environment variables
 GET_QUESTIONS_BY_IDS_URL = os.environ.get("GET_QUESTIONS_BY_IDS")
 CREATE_QUESTION_URL= os.environ.get("CREATE_QUESTION_URL")
+VALIDATE_USER_URL=os.environ.get("VALIDATE_USER_URL")
 
 def get_db():
     db = SessionLocal()
@@ -33,7 +36,7 @@ auth_scheme = HTTPBearer()
 
 
 async def verify_token(token:str):
-    url = "http://127.0.0.1:8002/user/"  
+    url = VALIDATE_USER_URL 
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
