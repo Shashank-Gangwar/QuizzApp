@@ -210,7 +210,7 @@ async def update_question(db:db_dependency ,question_request:QuestionRequest,  q
 
 
 # Delete the existing question using Question Id
-@router.delete("/{question_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{question_id}")
 async def delete_questions(db:db_dependency ,  question_ids: List[int] = Body(...)):
     try:
         # Check if all the questions exist
@@ -229,7 +229,7 @@ async def delete_questions(db:db_dependency ,  question_ids: List[int] = Body(..
             
     except Exception as e:
         db.rollback()
-        return {"message": "An error occurred while deleting the question. Transaction rolled back.","error":e}
+        return {"status":status.HTTP_500_INTERNAL_SERVER_ERROR,"message": "An error occurred while deleting the question. Transaction rolled back.","error":e}
 
     return {"detail": "Questions deleted successfully"}
 
