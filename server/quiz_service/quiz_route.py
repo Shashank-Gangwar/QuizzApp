@@ -1,6 +1,7 @@
 from collections import defaultdict
 import os
 from typing import Annotated, List
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import and_, or_
@@ -16,6 +17,8 @@ router = APIRouter(
     prefix="/quiz",
     tags=['quiz']
 )
+
+load_dotenv("../.env")
 
 
 # Getting environment variables
@@ -41,7 +44,7 @@ async def verify_token(token:str):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
-
+    print(VALIDATE_USER_URL)
     async with AsyncClient() as client:
         # Send a GET request with custom headers
         response = await client.get(url,headers=headers)

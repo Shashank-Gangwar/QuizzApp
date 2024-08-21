@@ -69,7 +69,7 @@ async def get_current_user(token: Annotated[str,Depends(oauth2_bearer)]):
 
 
 
-# Routes--------------------
+# >-----------------Routes--------------------<
 
 
 # Get all users
@@ -96,27 +96,40 @@ async def all_users(db:db_dependency):
 # Register new user
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(register_user_request: RegisterUserRequest,db:db_dependency):
-    register_user_model = Users(
-        username = register_user_request.username,
-        email = register_user_request.email,
-        password_hash = bcrypt_context.hash(register_user_request.password),
-        created_at = datetime.now()
-    )
-    db.add(register_user_model)
-    db.flush()
+    username_exits =  db.query(Users).filter(Users.username==register_user_request.username).first()
+    if username_exits:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="username already exists")
+    email_exits =  db.query(Users).filter(Users.email==register_user_request.email).first()
+    if email_exits:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="user already exists with this email")
+    
+    try:
+        register_user_model = Users(
+            username = register_user_request.username,
+            email = register_user_request.email,
+            password_hash = bcrypt_context.hash(register_user_request.password),
+            created_at = datetime.now()
+        )
+        db.add(register_user_model)
+        db.flush()
 
-    role_name = register_user_request.role
-    role_name_exists = db.query(Role).filter(Role.role_name == role_name).first()
-    if role_name_exists:
-        role_model = Role(role_name = role_name_exists.role_name)
-    role_model = Role(role_name=role_name)
-    db.add(role_model)
-    db.flush()
+        role_name = register_user_request.role
+        role_name_exists = db.query(Role).filter(Role.role_name == role_name).first()
+        if role_name_exists:
+            role_model = Role(role_name = role_name_exists.role_name)
+        else:
+            role_model = Role(role_name=role_name)
+        db.add(role_model)
+        db.flush()
 
 
-    user_role_model = User_role(user_id = register_user_model.id, role_id = role_model.id)
-    db.add(user_role_model)
-    db.commit()
+        user_role_model = User_role(user_id = register_user_model.id, role_id = role_model.id)
+        db.add(user_role_model)
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail="failed to register user")
 
     return {"details":"User created successfully"}
 
@@ -143,9 +156,9 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 
 
     # Generating access token
-    token = create_access_token(user.username, user.id, role, timedelta(minutes=60))
+    token = create_access_token(user.username, user.id, role, timedelta(minutes=120))
 
-    response.set_cookie(key='access_token',value=token,max_age=18000)
+    response.set_cookie(key='access_token',value=token,max_age=7200)
 
     return {"access_token":token, "token_type":"bearer"}
 

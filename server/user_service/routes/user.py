@@ -1,6 +1,6 @@
 from typing import Annotated
 from starlette import status
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from database import SessionLocal
@@ -35,6 +35,8 @@ class update_password_request(BaseModel):
 
 # Routes -------------------------------
 
+
+# Get user details and also verify access token
 @router.get("/")
 async def get_user_details(token_user:user_dependency, db:db_dependency):
     user = db.query(Users).filter(Users.id==token_user['id']).first()
@@ -51,30 +53,71 @@ async def get_user_details(token_user:user_dependency, db:db_dependency):
 
 
 
+# Update username
 @router.put("/update_username/{username}",status_code=status.HTTP_200_OK)
 async def update_username(username:str, token_user:user_dependency, db:db_dependency):
+    user = db.query(Users).filter(Users.username == token_user['username']).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Unauthorized")
+    
+
     username_exists = db.query(Users).filter(Users.username==username).first()
     if username_exists:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="username already exists.")
-    db.query(Users).filter(Users.id == token_user['id']).update({"username": username})
-    db.commit()
+    
+    try:
+        db.query(Users).filter(Users.id == token_user['id']).update({"username": username})
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail="failed to update username")
 
     return {"message":"Username updated successfully"}
 
 
 
+# Update Email
+@router.put("/update_email/{email}",status_code=status.HTTP_200_OK)
+async def update_email(token_user:user_dependency, db:db_dependency,email:str = Path(min_length=6)):
+    user = db.query(Users).filter(Users.username == token_user['username']).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Unauthorized")
+    
+    email_exits = db.query(Users).filter(Users.email == email).first()
+    if email_exits:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="email already exits")
+
+    try:
+        db.query(Users).filter(Users.id == token_user['id']).update({"email": email})
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail="failed to update email")
+
+    return {"message":"email updated successfully"}
+
+
+
+# Update Password
 @router.put("/update_password",status_code=status.HTTP_200_OK)
 async def update_password(update_password:update_password_request,token_user:user_dependency, db:db_dependency):
     user = db.query(Users).filter(Users.username == token_user['username']).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Unauthorized")
+    
     if not bcrypt_context.verify(update_password.old_password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid old password")
     
-    new_password_hash = bcrypt_context.hash(update_password.new_password)
 
-    
-    db.query(Users).filter(Users.id == token_user['id']).update({"password_hash": new_password_hash})
-    db.commit()
+    try:
+        new_password_hash = bcrypt_context.hash(update_password.new_password)
+        
+        db.query(Users).filter(Users.id == token_user['id']).update({"password_hash": new_password_hash})
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail="failed to update password")
+
 
     return {"message":"Password updated successfully"}
