@@ -55,11 +55,31 @@ async def start_quiz(quiz_id: int, db:db_dependency,token: HTTPAuthorizationCred
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found!")
     
-    quiz_attempt = Quiz_Attempts(user_id=token_details['id'], quiz_id=quiz_id)
-    db.add(quiz_attempt)
-    db.commit()
 
-    return {"message": "Quiz started", "quiz_attempt_id": quiz_attempt.id}
+    quiz_attempt = db.query(Quiz_Attempts).filter(
+                                    Quiz_Attempts.user_id == token_details['id'],
+                                    Quiz_Attempts.quiz_id == quiz_id
+                                    ).first()
+
+    if quiz_attempt:
+        if quiz_attempt.end_time:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quiz already attempted!")
+        else:
+            # Update the start time if the quiz was started but not finished
+            quiz_attempt.start_time = datetime.now()  
+            db.commit()
+            return {"message": "Quiz attempt resumed", "quiz_attempt_id": quiz_attempt.id}
+    
+    else:
+        quiz_attempt = Quiz_Attempts(
+            user_id=token_details['id'], 
+            quiz_id=quiz_id, 
+            start_time=datetime.now()
+        )
+        db.add(quiz_attempt)
+        db.commit()
+        return {"message": "Quiz attempt started", "quiz_attempt_id": quiz_attempt.id}
+
 
 
 
@@ -70,15 +90,21 @@ async def complete_quiz(quiz_attempt_id: int, score: float, db: db_dependency,to
     if token_details == None :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Access token")
     
+
+    # Chech whether the quiz has started or not 
     quiz_attempt = db.query(Quiz_Attempts).filter(Quiz_Attempts.id == quiz_attempt_id).first()
     if quiz_attempt is None:
         raise HTTPException(status_code=404, detail="You have not attempted the quiz yet")
     
-    quiz_attempt.end_time = datetime.now()
-    quiz_attempt.score = score
-    db.commit()
-    
-    return {"message": "Quiz completed", "score": score}
+    # check whether the quiz has already completed
+    if quiz_attempt.end_time:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail='Quiz already completed before')
+    else:
+        quiz_attempt.end_time = datetime.now()
+        quiz_attempt.score = score
+        db.commit()
+        
+        return {"message": "Quiz completed", "score": score}
 
 
 

@@ -211,7 +211,7 @@ async def update_question(db:db_dependency ,question_request:QuestionRequest,  q
 
 # Delete the existing question using Question Id
 @router.delete("/{question_id}")
-async def delete_questions(db:db_dependency ,  question_ids: List[int] = Body(...)):
+async def delete_questions(db:db_dependency ,  question_ids: List[int] ):
     try:
         # Check if all the questions exist
         questions = db.query(Question).filter(Question.id.in_(question_ids)).all()
