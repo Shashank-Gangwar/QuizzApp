@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func
+from sqlalchemy import Float, cast, func
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import Users, Quiz_Attempts
@@ -95,11 +95,13 @@ async def global_leaderboard(db:db_dependency,token: HTTPAuthorizationCredential
         db.query(
             Quiz_Attempts.user_id,
             Users.username,
-            func.sum(Quiz_Attempts.score).label('total_score')
+            func.sum(Quiz_Attempts.score).label('total_score'),
+            func.count(Quiz_Attempts.id).label('total_quizes'),
+            (func.sum(Quiz_Attempts.score) / cast(func.count(Quiz_Attempts.id), Float)).label("average")
         )
         .join(Users, Users.id==Quiz_Attempts.user_id)
         .group_by(Quiz_Attempts.user_id,Users.username)
-        .order_by(func.sum(Quiz_Attempts.score).desc())
+        .order_by((func.sum(Quiz_Attempts.score) / cast(func.count(Quiz_Attempts.id), Float)).desc())
         .all()
     )
 
@@ -110,6 +112,8 @@ async def global_leaderboard(db:db_dependency,token: HTTPAuthorizationCredential
             "user_id": entry.user_id,
             "username": entry.username,
             "total_score": entry.total_score,
+            "total_quizes":entry.total_quizes,
+            "average_score":entry.average
         })
 
     return {"leaderboard": results}

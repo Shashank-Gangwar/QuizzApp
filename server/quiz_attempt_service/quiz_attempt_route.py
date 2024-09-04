@@ -43,7 +43,10 @@ async def verify_token(token:str):
     else:
         return None
     
-
+@router.get("/")
+async def getAllAttempts(db:db_dependency):
+   result= db.query(Quiz_Attempts).all()
+   return result
 
 @router.post('/start_quiz')
 async def start_quiz(quiz_id: int, db:db_dependency,token: HTTPAuthorizationCredentials = Depends(auth_scheme)):

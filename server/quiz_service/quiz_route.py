@@ -1,8 +1,7 @@
 from collections import defaultdict
-import os
-from typing import Annotated, List
+from typing import Annotated, Dict, List
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
@@ -11,6 +10,7 @@ from models import Quiz, Quiz_question, Quiz_tag,Users,Tag
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 from starlette import status
 from httpx import AsyncClient
+import os
 
 
 router = APIRouter(
@@ -44,15 +44,18 @@ async def verify_token(token:str):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
-    print(VALIDATE_USER_URL)
     async with AsyncClient() as client:
-        # Send a GET request with custom headers
-        response = await client.get(url,headers=headers)
-    if response.status_code==200:
-        return response.json()
-    else:
-        return None
-    
+        try:
+            response = await client.get(url,headers=headers)
+            response.raise_for_status() 
+            if response.status_code==200:
+                return response.json()
+        except Exception as err:
+                # Handle other potential errors (e.g., network issues)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {err}")
+
+
+
 async def createQuestions(questions:list):
     url = CREATE_QUESTION_URL
     data = [question.dict() for question in questions]  # Convert Pydantic models to dict
@@ -105,7 +108,6 @@ class CreateQuizRequest(BaseModel):
 @router.get('/')
 async def get_all_quiz(db:db_dependency,token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
     token_details = await verify_token(token.credentials)
-    
     if token_details == None :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Access token")
     
@@ -115,7 +117,6 @@ async def get_all_quiz(db:db_dependency,token: HTTPAuthorizationCredentials = De
                 .join(Users,Users.id==Quiz.created_by)
                 .all()
             )
-
 
     # Dictionary to hold quizzes with their associated tags
     quiz_dict = defaultdict(lambda: {"tags": []})
@@ -298,13 +299,15 @@ async def filter_quiz(
     string: str = Query(None, min_length=1),
     time: int = Query(None,ge=0),
     difficulty: str = Query(None, min_length=1),
-    tags: List[str] = Query(None)
+    filter_tag: str = Query(None, min_length=1),
 ):
     token_details = await verify_token(token.credentials)
     if token_details == None :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Access token")
     
-
+    print(filter_tag)
+    tags = filter_tag.split(',') if filter_tag else []
+    print(tags)
     query = (db.query(Quiz.id.label("quiz_id"), 
                         Quiz.name.label("quiz"), 
                         Quiz.difficulty, 

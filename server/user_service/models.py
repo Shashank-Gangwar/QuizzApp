@@ -18,6 +18,8 @@ class Users(Base):
     email = Column(String)
     password_hash = Column(String)
     created_at = Column(DateTime)
+    refresh_token = Column(String)
+    avatar_url = Column(String)
 
 
 class Role(Base):

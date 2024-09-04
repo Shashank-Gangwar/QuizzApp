@@ -1,11 +1,12 @@
-from typing import Annotated
+from datetime import timedelta
+from typing import Annotated, Dict
 from starlette import status
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import Users
-from routes.auth import get_current_user,bcrypt_context
+from routes.auth import bcrypt_context, create_tokens, verify_access_token
 
 router = APIRouter(
     prefix='/user',
@@ -23,7 +24,7 @@ def get_db():
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
-user_dependency = Annotated[dict,Depends(get_current_user)]
+user_dependency = Annotated[dict,Depends(verify_access_token)]
 
 
 class update_password_request(BaseModel):
@@ -38,16 +39,16 @@ class update_password_request(BaseModel):
 
 # Get user details and also verify access token
 @router.get("/")
-async def get_user_details(token_user:user_dependency, db:db_dependency):
+async def current_user(token_user:user_dependency, db:db_dependency):
     user = db.query(Users).filter(Users.id==token_user['id']).first()
     
-
     user_details = {
             "id": user.id,
             "username": user.username,
             "email": user.email,
             "created_at": user.created_at,
-            "role": token_user["user_role"]
+            "role": token_user["user_role"],
+            "avatar_url": user.avatar_url
         }
     return user_details
 
@@ -56,9 +57,10 @@ async def get_user_details(token_user:user_dependency, db:db_dependency):
 # Update username
 @router.put("/update_username/{username}",status_code=status.HTTP_200_OK)
 async def update_username(username:str, token_user:user_dependency, db:db_dependency):
+    print(username);
     user = db.query(Users).filter(Users.username == token_user['username']).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Unauthorized")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Unauthorized22")
     
 
     username_exists = db.query(Users).filter(Users.username==username).first()
@@ -68,11 +70,15 @@ async def update_username(username:str, token_user:user_dependency, db:db_depend
     try:
         db.query(Users).filter(Users.id == token_user['id']).update({"username": username})
         db.commit()
+
+        # Generating new access token
+        access_token,_ = create_tokens(username, token_user['id'], token_user['user_role'], timedelta(minutes=120))
+
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail="failed to update username")
 
-    return {"message":"Username updated successfully"}
+    return {"message":"Username updated successfully","new_username":username,"access_token":access_token,"token_type":"bearer"}
 
 
 

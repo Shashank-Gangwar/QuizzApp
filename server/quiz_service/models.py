@@ -34,6 +34,8 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, index=True)
     tag_name = Column(String)
 
+    __table_args__ = {'extend_existing': True}
+
 
 class Question(Base):
     __tablename__ = 'question'
@@ -46,6 +48,8 @@ class Question(Base):
     option4 = Column(String)
     correct_answer = Column(String)
 
+    __table_args__ = {'extend_existing': True}
+
 
 class Users(Base):
     __tablename__ = 'users'
@@ -55,5 +59,7 @@ class Users(Base):
     email = Column(String)
     password_hash = Column(String)
     created_at = Column(DateTime)
+
+    __table_args__ = {'extend_existing': True}
 
 

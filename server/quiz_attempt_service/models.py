@@ -25,6 +25,8 @@ class Quiz(Base):
     max_time = Column(Integer)
     created_by = Column(Integer, ForeignKey('users.id'),nullable=False)
 
+    __table_args__ = {'extend_existing': True}
+
 
 class Users(Base):
     __tablename__ = 'users'
@@ -34,5 +36,7 @@ class Users(Base):
     email = Column(String)
     password_hash = Column(String)
     created_at = Column(DateTime)
+
+    __table_args__ = {'extend_existing': True}
 
 

@@ -1,0 +1,376 @@
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing:border-box;
+}
+
+body{
+    height: 100vh;
+    
+}
+
+::selection {
+    background-color: #a855f7;
+    color: #ffffff; 
+  }
+  
+
+::-moz-selection {
+    background-color: #a855f7; 
+    color: #ffffff; 
+  }
+
+.cursorText{
+    cursor: default;
+}
+
+.medievalsharp-regular {
+    font-family: "MedievalSharp", cursive;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+
+.notFound{
+    width:100vw;
+    height: 100vh;
+    background-image: url(https://cdnb.artstation.com/p/assets/images/images/030/995/305/original/roman-kuteynikov-bosco.gif?1602261548);
+    background-size: cover;
+    background-position: top;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    text-align: center;
+    padding: 0 10px;
+    color: #f5e9ff;
+    font-size: 4rem;
+    font-family: "MedievalSharp", cursive;
+    font-weight: 400;
+    filter: blur(1px);
+  -webkit-filter: blur(1px);
+}
+
+.logo{
+    font-family:"MedievalSharp", cursive;
+    font-weight: 600;
+    font-style:normal;
+    color: #000000;
+  }
+
+.logoLogin{
+    font-family:"MedievalSharp", cursive;
+    font-size: 3.5rem;
+    font-weight: 600;
+    font-style:normal;
+    color: #5A189A;
+    margin: 0 0 0 10px;
+}
+
+.loginPage{
+    background-image:url("https://images.wallpaperscraft.com/image/single/wizard_magic_fantasy_189305_1920x1080.jpg");
+    background-size: cover;
+    background-position: center;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loginRegister{
+    /* transition: 1s all ease-out; */
+    max-width: 500px;
+    width: 75%;
+    background-color: rgba(255, 255, 255, 0.502);
+    border: 1px solid #ffffffc3;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) ;
+    border-radius: 10px;
+    padding: 10px 0;
+    margin: 0 20px;
+}
+
+
+/* --------------dashboard---------------- */
+.dashboard{
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --------sidebar---------- */
+
+.sidebar{
+    background-color: #7B2CBF;
+    max-width: 250px;
+    height: 100vh;
+    /* border-top: 1px solid #11011e; */
+}
+
+.createNav{
+    line-height: 4rem;
+    font-weight: 700;
+    color: white;
+    background-color: #C77DFF;
+}
+
+.navItem{
+    background-color: #3C096C;
+}
+
+.navItem:hover{
+    background-color: #3C096C;
+}
+
+
+
+
+/* ------header--------- */
+
+.myHeader{
+    background-color: #7B2CBF;
+    width: 100%;
+    z-index: 999;
+}
+
+
+/* ---------right content area ------- */
+.contentArea{
+    height: 100%;
+    padding-top: 5vh;
+    padding: 5vh 2vw 0 2vw;
+    /* background-image:url("https://images.wallpaperscraft.com/image/single/wizard_magic_fantasy_189305_1920x1080.jpg");
+    background-size: cover; */
+}
+
+
+
+
+/* --------Inventory and myquizzes-------- */
+
+
+.searchbar{
+   
+}
+.quizContainer{
+    height: 70vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.quizContainer::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  .quizContainer::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 5px;
+  }
+  
+  .quizContainer::-webkit-scrollbar-thumb {
+    background-color: #3C096C;
+    border-radius: 5px;
+    border: 3px solid #f0f0f0;
+  }
+
+
+
+
+
+
+
+
+
+
+
+.quizBox{
+    transition: .2s all ease-in-out;
+}
+.quizBox:hover{
+    background-color: #e0aaff;
+    transform: scale(1.05, 1.05);
+}
+
+
+.quizBoxItem{
+    background-color: #3C096C;
+    color: whitesmoke;
+}
+
+.fiterDiv{
+    height: min-content;
+    /* position:sticky;
+    top: 28vh; */
+}
+
+.tagsInput{
+    display: flex;
+    align-items: start;
+    justify-content: left;
+    flex-wrap: wrap;
+    background-color: #ffffff;
+    max-height: 25vh;
+    overflow-y: scroll;
+}
+
+.tagsInput::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  .tagsInput::-webkit-scrollbar-track {
+    background: #ffffff;
+    border-radius: 5px;
+  }
+  
+  .tagsInput::-webkit-scrollbar-thumb {
+    background-color: #3C096C;
+    border-radius: 5px;
+    border: 3px solid #f0f0f0;
+  }
+
+
+
+.tagsInput input{
+    margin: 3px 2px;
+    border: none;
+}
+
+.taglist{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+}
+
+.tag{
+    width: auto;
+	/* height: 32px; */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #000000;
+    margin: 3px 2px ;
+	/* font-size: 14px; */
+	background: #e0aaff;
+}
+
+
+
+/* --------------leaderboard---------------- */
+
+.leaderboard{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 85vh;
+    padding: 10px 0;
+}
+
+  
+.podium {
+    color: white;
+    background: linear-gradient(to bottom, #992dd7, #3C096C );
+    border: 1px solid black;
+    border-radius: 2px;
+    width:calc(75%/3);
+    min-width: 8rem;
+    cursor:default;
+  }
+  
+  /* .leaderboardList{
+    overflow-y: scroll;
+    border: 1px solid red;
+  } */
+
+
+.leaderboardListItem{
+    background: linear-gradient(to right, #3C096C , #992dd7);
+    color: white;
+    padding: 15px 20px;
+  }
+
+
+
+/* --------------profile------------------- */
+
+.profileImg{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 8rem;
+    height: 8rem;
+    font-size: 5rem;
+    padding-bottom: 10px;
+    background-color: #3C096C;
+    color: white;
+    border-radius: 100%;
+}
+
+
+/* 
+
+.accordion-button:not(.collapsed){
+    --bs-accordion-active-bg: #3C096C;
+    --bs-accordion-color: black;
+    --bs-accordion-bg: #3C096C;
+    --bs-accordion-btn-color: white;
+    --bs-accordion-active-color: white;
+}
+
+.accordion-button::collapsed{
+    --bs-accordion-active-bg: #b49dca;
+    
+    --bs-accordion-color: white;
+    --bs-accordion-btn-color: white;
+    
+}
+
+
+.accordion-item{
+    --bs-accordion-bg: #C77DFF;
+    --bs-accordion-color: white;
+    --bs-accordion-btn-color: white;
+}
+.accordion-body input{
+    background-color: #C77DFF;
+}
+
+/* .accordion-buttons:not(:disabled){
+    --bs-accordion-bg: #3C096C;
+    --bs-accordion-color: white;
+} */ 
+
+
+
+
+
+/* --------------Attempting quiz------------- */
+
+
+.atmptQuizContainer{
+    background-image:url("https://images.wallpaperscraft.com/image/single/wizard_magic_fantasy_189305_1920x1080.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment:fixed;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+}
+
+
+.atmptQuizInside{
+    background-color: #ffffffbb;
+    max-width: 900px;
+}
+
+.atmptQuizInside input[type="radio"]:checked{
+ background-color: #3C096C;
+ border-color: #3C096C;
+}
+
+.atmptQuizInside h1{
+color: #3C096C;
+}
