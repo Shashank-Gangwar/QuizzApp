@@ -7,7 +7,8 @@ app = FastAPI()
 
 # Cors
 origins = [
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://quizzard-shashank.netlify.app/"
 ]
 
 app.add_middleware(
