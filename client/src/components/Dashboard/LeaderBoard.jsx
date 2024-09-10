@@ -11,36 +11,21 @@ function LeaderBoard() {
     <div className="leaderboard w-100 d-flex flex-column align-items-center">
       <div className=" mb-3 text-center w-100 me-0 me-lg-5 d-flex justify-content-center ">
         <div className="mt-5 podium">
-          <img
-            src="../public/silver_medal.png"
-            alt="Silver"
-            width={100}
-            height={100}
-          />
+          <img src="/silver_medal.png" alt="Silver" width={100} height={100} />
           <h1 className="w-auto">
             {Math.round(topThree[1]?.average_score * 100) / 100}
           </h1>
           <h6 className="w-auto">{topThree[1]?.username}</h6>
         </div>
         <div className=" podium">
-          <img
-            src="../public/gold_medal.png"
-            alt="Silver"
-            width={100}
-            height={100}
-          />
+          <img src="/gold_medal.png" alt="Silver" width={100} height={100} />
           <h1 className="w-auto ">
             {Math.round(topThree[0]?.average_score * 100) / 100}
           </h1>
           <h6 className="w-auto ">{topThree[0]?.username}</h6>
         </div>
         <div className="mt-5 podium">
-          <img
-            src="../public/bronze_medal.png"
-            alt="Silver"
-            width={100}
-            height={100}
-          />
+          <img src="/bronze_medal.png" alt="Silver" width={100} height={100} />
           <h1 className="w-auto">
             {Math.round(topThree[2]?.average_score * 100) / 100}
           </h1>
