@@ -203,7 +203,7 @@ function CreateQuiz() {
               className=" d-flex align-items-center me-md-auto text-decoration-none logo "
             >
               <img
-                src="..\public\Quizard_logo_lavander.png"
+                src="/Quizard_logo_lavander.png"
                 alt="logo"
                 height={60}
                 width={60}

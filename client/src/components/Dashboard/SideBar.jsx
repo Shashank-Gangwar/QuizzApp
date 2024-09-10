@@ -56,6 +56,7 @@ function SideBar() {
         dispatch(setMyQuiz(response.data));
       } else {
         //console.log(response);
+        toast.dismiss();
         showToast("Couldn't get Your Quizzes", "error");
       }
     }
@@ -100,12 +101,7 @@ function SideBar() {
         href="/"
         className="d-none d-md-flex flex-column align-items-center me-md-auto text-white text-decoration-none logo "
       >
-        <img
-          src="..\public\Quizard_logo_white.png"
-          alt="logo"
-          height={60}
-          width={60}
-        />
+        <img src="/Quizard_logo_white.png" alt="logo" height={60} width={60} />
         <span className="fs-1 px-2">Quizzard</span>
       </a>
       <hr />

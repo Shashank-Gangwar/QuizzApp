@@ -175,7 +175,7 @@ function LoginRegister() {
       <div className="loginRegister">
         <div className="d-flex align-items-center justify-content-center mb-5 ">
           <img
-            src="..\public\Quizard_logo_lavander.png"
+            src="/Quizard_logo_lavander.png"
             alt="logo"
             height={80}
             width={80}
