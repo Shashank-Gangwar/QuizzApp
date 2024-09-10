@@ -115,7 +115,7 @@ function Profile() {
           changePwd && "d-none"
         } mx-3 p-5 text-center bg-body-tertiary rounded-3 d-flex align-items-center justify-content-start gap-4 border w-100`}
       >
-        <div className="profileImg">S</div>
+        <div className="profileImg">{userDetails?.username?.charAt(0)}</div>
         <div className="pb-4 d-flex flex-column align-items-start justify-content-center">
           <div className="d-flex  align-items-center justify-content-start gap-4 my-3">
             <h1>{userDetails.username}</h1>
